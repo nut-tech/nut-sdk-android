@@ -108,6 +108,10 @@ public class MainActivity extends BaseActivity implements BleDeviceConsumer, Sca
 
     @Override
     public void onBleDeviceScanned(BleDevice device) {
+        //Filter the nearest device
+        if(device.rssi < -60) {
+            return;
+        }
         int index = mBleDeviceList.indexOf(device);
         if (index >= 0) {
             BleDevice oldDevice = mBleDeviceList.get(index);

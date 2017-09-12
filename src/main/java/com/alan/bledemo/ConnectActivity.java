@@ -1,6 +1,12 @@
 package com.alan.bledemo;
 
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothManager;
+import android.bluetooth.BluetoothProfile;
+import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -10,6 +16,7 @@ import android.widget.Toast;
 
 import com.nutspace.nut.api.BleDeviceConsumer;
 import com.nutspace.nut.api.BleDeviceManager;
+import com.nutspace.nut.api.ble.util.TypeConvertUtils;
 import com.nutspace.nut.api.callback.ConnectStateChangedCallback;
 import com.nutspace.nut.api.callback.EventCallback;
 import com.nutspace.nut.api.model.BleDevice;
@@ -108,6 +115,7 @@ public class ConnectActivity extends BaseActivity implements BleDeviceConsumer, 
         mTvRssi.setVisibility(View.VISIBLE);
         mTvTips.setText("connected");
         mBtnConnect.setText("disconnect");
+        Log.e("TEST", "isDeviceConnect:" + isDeviceConnect(device.id));
     }
 
     @Override
@@ -188,5 +196,18 @@ public class ConnectActivity extends BaseActivity implements BleDeviceConsumer, 
     public void onBackPressed() {
         mManager.disconnect(this, mDevice);
         super.onBackPressed();
+    }
+
+    /**
+     * Bluetooth device connection status
+     * @param deviceID
+     * @return
+     */
+    private boolean isDeviceConnect(String deviceID) {
+        BluetoothManager mBluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        BluetoothAdapter mBluetoothAdapter = mBluetoothManager.getAdapter();
+        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(TypeConvertUtils.convertDeviceIdToByteArray(Long.parseLong(deviceID)));
+        int state = mBluetoothManager.getConnectionState(device, BluetoothProfile.GATT);
+        return state == BluetoothProfile.STATE_CONNECTED;
     }
 }
