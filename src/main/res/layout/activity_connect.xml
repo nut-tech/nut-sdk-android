@@ -62,6 +62,15 @@
         android:text="call"
         android:visibility="gone"/>
 
+    <Button
+        android:id="@+id/btn_shutdown"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/btn_call"
+        android:layout_toEndOf="@id/btn_call"
+        android:text="shutdown"
+        android:visibility="gone"/>
+
     <CheckBox
         android:id="@+id/cb_anti_lost"
         android:layout_width="wrap_content"

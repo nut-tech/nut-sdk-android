@@ -37,6 +37,8 @@ public class ConnectActivity extends BaseActivity implements BleDeviceConsumer, 
 
     Button mBtnCall;
 
+    Button mBtnShutdown;
+
     CheckBox mCbAntiLost;
 
     TextView mTvTips;
@@ -56,6 +58,7 @@ public class ConnectActivity extends BaseActivity implements BleDeviceConsumer, 
         mCbAutoConnect = (CheckBox) findViewById(R.id.cb_auto_connect);
         mBtnConnect = (Button) findViewById(R.id.btn_connect);
         mBtnCall = (Button) findViewById(R.id.btn_call);
+        mBtnShutdown = (Button) findViewById(R.id.btn_shutdown);
         mCbAntiLost = (CheckBox) findViewById(R.id.cb_anti_lost);
         mTvTips = (TextView) findViewById(R.id.tv_tips);
         mTvRssi = (TextView) findViewById(R.id.tv_rssi);
@@ -65,6 +68,7 @@ public class ConnectActivity extends BaseActivity implements BleDeviceConsumer, 
 
         mBtnConnect.setOnClickListener(this);
         mBtnCall.setOnClickListener(this);
+        mBtnShutdown.setOnClickListener(this);
         mCbAntiLost.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -100,6 +104,10 @@ public class ConnectActivity extends BaseActivity implements BleDeviceConsumer, 
                 }
 
                 break;
+
+            case R.id.btn_shutdown:
+                mManager.shutdown(this, mDevice);
+                break;
         }
     }
 
@@ -111,6 +119,7 @@ public class ConnectActivity extends BaseActivity implements BleDeviceConsumer, 
     @Override
     public void onConnect(BleDevice device) {
         mBtnCall.setVisibility(View.VISIBLE);
+        mBtnShutdown.setVisibility(View.VISIBLE);
         mCbAntiLost.setVisibility(View.VISIBLE);
         mTvRssi.setVisibility(View.VISIBLE);
         mTvTips.setText("connected");
@@ -121,6 +130,7 @@ public class ConnectActivity extends BaseActivity implements BleDeviceConsumer, 
     @Override
     public void onDisconnect(BleDevice device, int error) {
         mBtnCall.setVisibility(View.GONE);
+        mBtnShutdown.setVisibility(View.GONE);
         mCbAntiLost.setVisibility(View.GONE);
         mTvRssi.setVisibility(View.GONE);
         mTvTips.setText("disconnect error code is " + error);
