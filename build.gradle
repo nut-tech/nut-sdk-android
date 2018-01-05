@@ -38,7 +38,7 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:26.1.0'
     compile 'com.android.support:recyclerview-v7:26.1.0'
-    compile files('libs/nut-sdk-v1.0.3.jar')
+    compile files('libs/nut-sdk-v1.0.4.jar')
 }
 
 repositories {
