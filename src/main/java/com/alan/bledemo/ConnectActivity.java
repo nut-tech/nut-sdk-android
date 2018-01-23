@@ -106,7 +106,8 @@ public class ConnectActivity extends BaseActivity implements BleDeviceConsumer, 
                 break;
 
             case R.id.btn_shutdown:
-                mManager.shutdown(this, mDevice);
+//                mManager.shutdown(this, mDevice);
+                mManager.forceShutdown(this, mDevice);
                 break;
         }
     }
