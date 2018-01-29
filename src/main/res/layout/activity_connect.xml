@@ -94,8 +94,7 @@
         android:layout_height="wrap_content"
         android:layout_toEndOf="@id/tv_rssi"
         android:layout_alignBaseline="@id/tv_rssi"
-        android:paddingStart="4dp"
-        android:visibility="gone"/>
+        android:paddingStart="4dp"/>
 
     <TextView
         android:id="@+id/tv_tips"

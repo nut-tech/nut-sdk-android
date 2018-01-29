@@ -60,6 +60,7 @@ public class ConnectActivity extends BaseActivity implements BleDeviceConsumer, 
         mBtnCall = (Button) findViewById(R.id.btn_call);
         mBtnShutdown = (Button) findViewById(R.id.btn_shutdown);
         mCbAntiLost = (CheckBox) findViewById(R.id.cb_anti_lost);
+        mTvBattery = (TextView) findViewById(R.id.tv_battery);
         mTvTips = (TextView) findViewById(R.id.tv_tips);
         mTvRssi = (TextView) findViewById(R.id.tv_rssi);
 
@@ -106,8 +107,9 @@ public class ConnectActivity extends BaseActivity implements BleDeviceConsumer, 
                 break;
 
             case R.id.btn_shutdown:
-//                mManager.shutdown(this, mDevice);
-                mManager.forceShutdown(this, mDevice);
+                mManager.shutdown(this, mDevice);
+//                mManager.forceShutdown(this, mDevice);
+//                mManager.readBattery(this, mDevice);
                 break;
         }
     }
