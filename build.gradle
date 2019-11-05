@@ -18,8 +18,8 @@ android {
         applicationId "com.alan.bledemo"
         minSdkVersion 18
         targetSdkVersion 26
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "1.1"
     }
     buildTypes {
         release {
@@ -38,7 +38,7 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:26.1.0'
     compile 'com.android.support:recyclerview-v7:26.1.0'
-    compile files('libs/nut-sdk-v1.0.5.jar')
+    compile files('libs/nut-sdk-v1.0.6.jar')
 }
 
 repositories {

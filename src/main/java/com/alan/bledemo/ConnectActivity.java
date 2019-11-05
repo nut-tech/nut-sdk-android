@@ -192,8 +192,8 @@ public class ConnectActivity extends BaseActivity implements BleDeviceConsumer, 
     @Override
     protected void onStart() {
         super.onStart();
-        mManager.addConnectStateChangedCallaback(this);
-        mManager.addEventCallaback(this);
+        mManager.addConnectStateChangedCallback(this);
+        mManager.addEventCallback(this);
         mManager.bind(this);
     }
 

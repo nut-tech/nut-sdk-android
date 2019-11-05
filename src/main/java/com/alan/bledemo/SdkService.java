@@ -26,8 +26,8 @@ public class SdkService extends Service implements BleDeviceConsumer, ConnectSta
     public void onCreate() {
         super.onCreate();
         mManager = BleDeviceManager.getInstance(this);
-        mManager.addConnectStateChangedCallaback(this);
-        mManager.addEventCallaback(this);
+        mManager.addConnectStateChangedCallback(this);
+        mManager.addEventCallback(this);
         mManager.bind(this);
     }
 
