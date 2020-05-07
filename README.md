@@ -8,3 +8,7 @@
 
 ## v1.0.2
 - Fix call device callback does not respond.
+
+## v1.2.0
+- Support to Nut mini.
+- Fix bugs.
