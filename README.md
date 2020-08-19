@@ -12,3 +12,6 @@
 ## v1.2.0
 - Support to Nut mini.
 - Fix bugs.
+
+## v1.3.0
+- Support to Beacon API

@@ -1,27 +1,26 @@
 package com.alan.bledemo;
 
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothManager;
-import android.bluetooth.BluetoothProfile;
-import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.nutspace.nut.api.BleDeviceConsumer;
 import com.nutspace.nut.api.BleDeviceManager;
-import com.nutspace.nut.api.ble.util.TypeConvertUtils;
+import com.nutspace.nut.api.callback.BeaconResultCallback;
 import com.nutspace.nut.api.callback.ConnectStateChangedCallback;
 import com.nutspace.nut.api.callback.EventCallback;
 import com.nutspace.nut.api.model.BleDevice;
 
-public class ConnectActivity extends BaseActivity implements BleDeviceConsumer, ConnectStateChangedCallback, EventCallback, View.OnClickListener {
+/**
+ * @author hanson
+ */
+public class ConnectActivity extends BaseActivity implements BleDeviceConsumer,
+        ConnectStateChangedCallback, EventCallback, BeaconResultCallback, View.OnClickListener {
 
     BleDeviceManager mManager;
 
@@ -35,17 +34,35 @@ public class ConnectActivity extends BaseActivity implements BleDeviceConsumer, 
 
     Button mBtnConnect;
 
-    Button mBtnCall;
-
-    Button mBtnShutdown;
-
-    CheckBox mCbAntiLost;
-
     TextView mTvTips;
 
     TextView mTvRssi;
 
     TextView mTvBattery;
+
+    TextView mTvBeaconUUID;
+
+    TextView mTvBeaconMajor;
+
+    TextView mTvBeaconMinor;
+
+    Button mBtnCall;
+
+    Button mBtnReadBattery;
+
+    Button mBtnShutdown;
+
+    CheckBox mCbAntiLost;
+
+    Button mBtnWriteBeaconUUID;
+
+    EditText mEtBeaconUUID;
+
+    Button mBtnWriteBeaconMajorMinor;
+
+    EditText mEtBeaconMajor;
+
+    EditText mEtBeaconMinor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,22 +70,35 @@ public class ConnectActivity extends BaseActivity implements BleDeviceConsumer, 
         setContentView(R.layout.activity_connect);
         mManager = BleDeviceManager.getInstance(this);
         mDevice = getIntent().getParcelableExtra("device");
-        mTvName = (TextView) findViewById(R.id.tv_name);
-        mTvMacAddress = (TextView) findViewById(R.id.tv_address);
-        mCbAutoConnect = (CheckBox) findViewById(R.id.cb_auto_connect);
-        mBtnConnect = (Button) findViewById(R.id.btn_connect);
-        mBtnCall = (Button) findViewById(R.id.btn_call);
-        mBtnShutdown = (Button) findViewById(R.id.btn_shutdown);
-        mCbAntiLost = (CheckBox) findViewById(R.id.cb_anti_lost);
-        mTvBattery = (TextView) findViewById(R.id.tv_battery);
-        mTvTips = (TextView) findViewById(R.id.tv_tips);
-        mTvRssi = (TextView) findViewById(R.id.tv_rssi);
+        mTvName = findViewById(R.id.tv_name);
+        mTvMacAddress = findViewById(R.id.tv_address);
+        mCbAutoConnect = findViewById(R.id.cb_auto_connect);
+        mBtnConnect = findViewById(R.id.btn_connect);
+        mTvTips = findViewById(R.id.tv_tips);
+        mTvRssi = findViewById(R.id.tv_rssi);
+        mTvBattery = findViewById(R.id.tv_battery);
+        mTvBeaconUUID = findViewById(R.id.tv_beacon_uuid);
+        mTvBeaconMajor = findViewById(R.id.tv_beacon_major);
+        mTvBeaconMinor = findViewById(R.id.tv_beacon_minor);
+        mBtnCall = findViewById(R.id.btn_call);
+        mBtnReadBattery = findViewById(R.id.btn_read_battery);
+        mBtnShutdown = findViewById(R.id.btn_shutdown);
+        mCbAntiLost = findViewById(R.id.cb_anti_lost);
+        mBtnWriteBeaconUUID = findViewById(R.id.btn_write_uuid);
+        mEtBeaconUUID = findViewById(R.id.et_beacon_uuid);
+        mEtBeaconUUID.setText("10102233-4455-6677-8899-AABBCCDDEEFF");
+        mBtnWriteBeaconMajorMinor = findViewById(R.id.btn_write_major_minor);
+        mEtBeaconMajor = findViewById(R.id.et_beacon_major);
+        mEtBeaconMajor.setText("12");
+        mEtBeaconMinor = findViewById(R.id.et_beacon_minor);
+        mEtBeaconMinor.setText("34");
 
         mTvName.setText(mDevice.name);
         mTvMacAddress.setText(mDevice.address);
 
         mBtnConnect.setOnClickListener(this);
         mBtnCall.setOnClickListener(this);
+        mBtnReadBattery.setOnClickListener(this);
         mBtnShutdown.setOnClickListener(this);
         mCbAntiLost.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -76,7 +106,8 @@ public class ConnectActivity extends BaseActivity implements BleDeviceConsumer, 
                 mManager.enableAntiLost(mDevice, isChecked);
             }
         });
-
+        mBtnWriteBeaconUUID.setOnClickListener(this);
+        mBtnWriteBeaconMajorMinor.setOnClickListener(this);
     }
 
     @Override
@@ -94,7 +125,6 @@ public class ConnectActivity extends BaseActivity implements BleDeviceConsumer, 
                     mTvTips.setText("disconnecting...");
                     mManager.disconnect(this, mDevice);
                 }
-
                 break;
 
             case R.id.btn_call:
@@ -103,13 +133,27 @@ public class ConnectActivity extends BaseActivity implements BleDeviceConsumer, 
                 } else {
                     mManager.changeRingState(mDevice, BleDevice.STATE_QUIT);
                 }
-
                 break;
-
+            case R.id.btn_read_battery:
+                mManager.readBattery(this, mDevice);
+                break;
             case R.id.btn_shutdown:
                 mManager.shutdown(this, mDevice);
-//                mManager.forceShutdown(this, mDevice);
-//                mManager.readBattery(this, mDevice);
+                //mManager.forceShutdown(this, mDevice);
+                break;
+            case R.id.btn_write_uuid:
+                mTvBeaconUUID.setText("Beacon UUID: ");
+                String beaconUUID = mEtBeaconUUID.getText().toString();
+                mManager.setBeaconUUID(mDevice, beaconUUID);
+                break;
+            case R.id.btn_write_major_minor:
+                mTvBeaconMajor.setText("Beacon Major: ");
+                mTvBeaconMinor.setText("Beacon Minor: ");
+                String major = mEtBeaconMajor.getText().toString();
+                String minor = mEtBeaconMinor.getText().toString();
+                mManager.setBeaconMajorMinor(mDevice, Integer.parseInt(major), Integer.parseInt(minor));
+                break;
+            default:
                 break;
         }
     }
@@ -121,23 +165,18 @@ public class ConnectActivity extends BaseActivity implements BleDeviceConsumer, 
 
     @Override
     public void onConnect(BleDevice device) {
-        mBtnCall.setVisibility(View.VISIBLE);
-        mBtnShutdown.setVisibility(View.VISIBLE);
-        mCbAntiLost.setVisibility(View.VISIBLE);
-        mTvRssi.setVisibility(View.VISIBLE);
-        mTvTips.setText("connected");
         mBtnConnect.setText("disconnect");
-        Log.e("TEST", "isDeviceConnect:" + isDeviceConnect(device.id));
+        mTvTips.setText("connected");
+        findViewById(R.id.ll_device_status).setVisibility(View.VISIBLE);
+        findViewById(R.id.ll_device_control).setVisibility(View.VISIBLE);
     }
 
     @Override
     public void onDisconnect(BleDevice device, int error) {
-        mBtnCall.setVisibility(View.GONE);
-        mBtnShutdown.setVisibility(View.GONE);
-        mCbAntiLost.setVisibility(View.GONE);
-        mTvRssi.setVisibility(View.GONE);
-        mTvTips.setText("disconnect error code is " + error);
         mBtnConnect.setText("connect");
+        mTvTips.setText("disconnect error code is " + error);
+        findViewById(R.id.ll_device_status).setVisibility(View.GONE);
+        findViewById(R.id.ll_device_control).setVisibility(View.GONE);
     }
 
     @Override
@@ -155,6 +194,8 @@ public class ConnectActivity extends BaseActivity implements BleDeviceConsumer, 
             case BleDevice.ACTION_LONGCLICK:
                 ac = "long click";
                 break;
+            default:
+                break;
         }
         Toast.makeText(this, "receive " + ac + " action", Toast.LENGTH_SHORT).show();
     }
@@ -162,14 +203,14 @@ public class ConnectActivity extends BaseActivity implements BleDeviceConsumer, 
     @Override
     public void onRssiChangedEvent(BleDevice device, int rssi) {
         if (device.equals(mDevice)) {
-            mTvRssi.setText("rssi=" + rssi);
+            mTvRssi.setText("RSSI: " + rssi);
         }
     }
 
     @Override
     public void onBatteryChangedEvent(BleDevice device, int battery) {
         mTvBattery.setVisibility(View.VISIBLE);
-        mTvBattery.setText("battery: " + battery);
+        mTvBattery.setText(String.format("Battery: %s%%", battery));
     }
 
     @Override
@@ -190,10 +231,31 @@ public class ConnectActivity extends BaseActivity implements BleDeviceConsumer, 
     }
 
     @Override
+    public void onBeaconUUID(BleDevice device, String uuid, boolean result) {
+        if (result) {
+            mTvBeaconUUID.setText("Beacon UUID: " + uuid);
+        } else {
+            mTvBeaconUUID.setText("Beacon UUID: Error");
+        }
+    }
+
+    @Override
+    public void onBeaconMajorMinor(BleDevice device, int major, int minor, boolean result) {
+        if (result) {
+            mTvBeaconMajor.setText("Beacon Major: " + major);
+            mTvBeaconMinor.setText("Beacon Minor: " + minor);
+        } else {
+            mTvBeaconMajor.setText("Beacon Major: Error");
+            mTvBeaconMinor.setText("Beacon Minor: Error");
+        }
+    }
+
+    @Override
     protected void onStart() {
         super.onStart();
         mManager.addConnectStateChangedCallback(this);
         mManager.addEventCallback(this);
+        mManager.addBeaconResultCallback(this);
         mManager.bind(this);
     }
 
@@ -201,6 +263,7 @@ public class ConnectActivity extends BaseActivity implements BleDeviceConsumer, 
     protected void onStop() {
         mManager.removeConnectStateChangedCallback(this);
         mManager.removeEventCallback(this);
+        mManager.removeBeaconResultCallback(this);
         mManager.unbind(this);
         super.onStop();
     }
@@ -209,18 +272,5 @@ public class ConnectActivity extends BaseActivity implements BleDeviceConsumer, 
     public void onBackPressed() {
         mManager.disconnect(this, mDevice);
         super.onBackPressed();
-    }
-
-    /**
-     * Bluetooth device connection status
-     * @param deviceID
-     * @return
-     */
-    private boolean isDeviceConnect(String deviceID) {
-        BluetoothManager mBluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-        BluetoothAdapter mBluetoothAdapter = mBluetoothManager.getAdapter();
-        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(TypeConvertUtils.convertDeviceIdToByteArray(Long.parseLong(deviceID)));
-        int state = mBluetoothManager.getConnectionState(device, BluetoothProfile.GATT);
-        return state == BluetoothProfile.STATE_CONNECTED;
     }
 }

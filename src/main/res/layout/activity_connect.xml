@@ -53,54 +53,186 @@
         android:layout_marginEnd="8dp"
         android:text="connect" />
 
-    <Button
-        android:id="@+id/btn_call"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@id/btn_connect"
-        android:layout_toEndOf="@id/btn_connect"
-        android:text="call"
-        android:visibility="gone"/>
-
-    <Button
-        android:id="@+id/btn_shutdown"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@id/btn_call"
-        android:layout_toEndOf="@id/btn_call"
-        android:text="shutdown"
-        android:visibility="gone"/>
-
-    <CheckBox
-        android:id="@+id/cb_anti_lost"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/btn_connect"
-        android:text="anti-lost"
-        android:visibility="gone"/>
-
-    <TextView
-        android:id="@+id/tv_rssi"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toEndOf="@id/cb_anti_lost"
-        android:layout_alignBaseline="@id/cb_anti_lost"
-        android:paddingStart="4dp"
-        android:visibility="gone"/>
-
-    <TextView
-        android:id="@+id/tv_battery"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toEndOf="@id/tv_rssi"
-        android:layout_alignBaseline="@id/tv_rssi"
-        android:paddingStart="4dp"/>
-
     <TextView
         android:id="@+id/tv_tips"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/cb_anti_lost"
-        android:textColor="@android:color/holo_red_light" />
+        android:layout_below="@id/btn_connect"
+        android:textColor="@android:color/holo_red_light"
+        tools:text="show device status"/>
 
+    <LinearLayout
+        android:id="@+id/ll_device_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tv_tips"
+        android:orientation="vertical"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <TextView
+            android:id="@+id/tv_rssi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="5dp"
+            android:text="RSSI:"
+            tools:text="RSSI: -100"/>
+
+        <TextView
+            android:id="@+id/tv_battery"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="5dp"
+            android:text="Battery:"
+            tools:text="Battery: 100%"/>
+
+        <TextView
+            android:id="@+id/tv_beacon_uuid"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="5dp"
+            android:text="Beacon UUID:"
+            tools:text="Beacon UUID: 12345678901234567890"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tv_beacon_major"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="5dp"
+                android:text="Beacon Major:"
+                tools:text="Beacon major: 123456"/>
+
+            <TextView
+                android:id="@+id/tv_beacon_minor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="5dp"
+                android:layout_marginStart="20dp"
+                android:text="Beacon Minor:"
+                tools:text="Beacon minor: 123456"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_device_control"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/ll_device_status"
+        android:orientation="vertical"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn_call"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="call"/>
+
+            <Button
+                android:id="@+id/btn_read_battery"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="Battery"/>
+
+            <Button
+                android:id="@+id/btn_shutdown"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="shutdown"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <CheckBox
+                android:id="@+id/cb_anti_lost"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="anti-lost"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <Button
+                android:id="@+id/btn_write_uuid"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Write"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="UUID:"
+                android:textSize="12dp"/>
+
+            <EditText
+                android:id="@+id/et_beacon_uuid"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="300dp"
+                android:textSize="12dp"
+                tools:text="10102233445566778899AABBCCDDEEFF"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn_write_major_minor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Write"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Major:"
+                android:textSize="12dp"/>
+
+            <EditText
+                android:id="@+id/et_beacon_major"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="100dp"
+                android:textSize="12dp"
+                tools:text="12"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Minor:"
+                android:textSize="12dp"/>
+
+            <EditText
+                android:id="@+id/et_beacon_minor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="100dp"
+                android:textSize="12dp"
+                tools:text="34"/>
+        </LinearLayout>
+
+    </LinearLayout>
 </RelativeLayout>

@@ -24,6 +24,9 @@ import com.nutspace.nut.api.model.BleDevice;
 
 import java.util.ArrayList;
 
+/**
+ * @author hanson
+ */
 public class MainActivity extends BaseActivity implements BleDeviceConsumer, ScanResultCallback, View.OnClickListener, OnItemClickListener {
 
     public static final int MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION = 1000;
@@ -95,13 +98,14 @@ public class MainActivity extends BaseActivity implements BleDeviceConsumer, Sca
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION: {
+            case MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION:
                 // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     mIsPermissionGranted = true;
                 }
-            }
+                break;
+            default:
+                break;
 
         }
     }
@@ -153,6 +157,8 @@ public class MainActivity extends BaseActivity implements BleDeviceConsumer, Sca
                     mManager.stopScan();
                     mBtnScan.setText("start scan");
                 }
+                break;
+            default:
                 break;
         }
     }
