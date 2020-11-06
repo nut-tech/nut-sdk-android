@@ -112,6 +112,7 @@ public class MainActivity extends BaseActivity implements BleDeviceConsumer, Sca
 
     @Override
     public void onBleDeviceScanned(BleDevice device) {
+        //Process the scanned Bluetooth devices
         //Filter the nearest device
         if(device.rssi < -60) {
             return;

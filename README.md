@@ -15,3 +15,6 @@
 
 ## v1.3.0
 - Support to Beacon API
+
+## v1.4.1
+- Fix bugs.

@@ -108,6 +108,11 @@ public class SdkService extends Service implements BleDeviceConsumer, ConnectSta
     }
 
     @Override
+    public void onSwitchDFUMode(BleDevice bleDevice, boolean b) {
+
+    }
+
+    @Override
     public void onDestroy() {
         mManager.removeConnectStateChangedCallback(this);
         mManager.removeEventCallback(this);

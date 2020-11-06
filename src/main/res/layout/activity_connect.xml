@@ -141,6 +141,19 @@
                 android:text="call"/>
 
             <Button
+                android:id="@+id/btn_shutdown"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="shutdown"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
                 android:id="@+id/btn_read_battery"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -148,11 +161,11 @@
                 android:text="Battery"/>
 
             <Button
-                android:id="@+id/btn_shutdown"
+                android:id="@+id/btn_read_rssi"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="shutdown"/>
-
+                android:layout_marginEnd="8dp"
+                android:text="Rssi"/>
         </LinearLayout>
 
         <LinearLayout

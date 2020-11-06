@@ -50,6 +50,8 @@ public class ConnectActivity extends BaseActivity implements BleDeviceConsumer,
 
     Button mBtnReadBattery;
 
+    Button mBtnReadRssi;
+
     Button mBtnShutdown;
 
     CheckBox mCbAntiLost;
@@ -82,6 +84,7 @@ public class ConnectActivity extends BaseActivity implements BleDeviceConsumer,
         mTvBeaconMinor = findViewById(R.id.tv_beacon_minor);
         mBtnCall = findViewById(R.id.btn_call);
         mBtnReadBattery = findViewById(R.id.btn_read_battery);
+        mBtnReadRssi = findViewById(R.id.btn_read_rssi);
         mBtnShutdown = findViewById(R.id.btn_shutdown);
         mCbAntiLost = findViewById(R.id.cb_anti_lost);
         mBtnWriteBeaconUUID = findViewById(R.id.btn_write_uuid);
@@ -99,6 +102,7 @@ public class ConnectActivity extends BaseActivity implements BleDeviceConsumer,
         mBtnConnect.setOnClickListener(this);
         mBtnCall.setOnClickListener(this);
         mBtnReadBattery.setOnClickListener(this);
+        mBtnReadRssi.setOnClickListener(this);
         mBtnShutdown.setOnClickListener(this);
         mCbAntiLost.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -137,6 +141,9 @@ public class ConnectActivity extends BaseActivity implements BleDeviceConsumer,
             case R.id.btn_read_battery:
                 mManager.readBattery(this, mDevice);
                 break;
+            case R.id.btn_read_rssi:
+                mManager.readRssi(mDevice);
+                break;
             case R.id.btn_shutdown:
                 mManager.shutdown(this, mDevice);
                 //mManager.forceShutdown(this, mDevice);
@@ -165,10 +172,12 @@ public class ConnectActivity extends BaseActivity implements BleDeviceConsumer,
 
     @Override
     public void onConnect(BleDevice device) {
+        //The device is connected successfully
         mBtnConnect.setText("disconnect");
         mTvTips.setText("connected");
         findViewById(R.id.ll_device_status).setVisibility(View.VISIBLE);
         findViewById(R.id.ll_device_control).setVisibility(View.VISIBLE);
+        mManager.readRssi(device);
     }
 
     @Override
@@ -186,11 +195,9 @@ public class ConnectActivity extends BaseActivity implements BleDeviceConsumer,
             case BleDevice.ACTION_SINGLE_CLICK:
                 ac = "single";
                 break;
-
             case BleDevice.ACTION_DOUBLECLICK:
                 ac = "double click";
                 break;
-
             case BleDevice.ACTION_LONGCLICK:
                 ac = "long click";
                 break;
@@ -228,6 +235,11 @@ public class ConnectActivity extends BaseActivity implements BleDeviceConsumer,
                 mTvTips.setText("quit device error " + error);
             }
         }
+    }
+
+    @Override
+    public void onSwitchDFUMode(BleDevice bleDevice, boolean b) {
+
     }
 
     @Override
