@@ -18,3 +18,7 @@
 
 ## v1.4.1
 - Fix bugs.
+
+## v1.4.2
+- enableAntiLost -> setDeviceAlert
+- Fix bugs.

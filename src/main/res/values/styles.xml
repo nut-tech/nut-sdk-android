@@ -8,4 +8,40 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="MyDialogLoading" parent="android:Theme.Dialog">
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:backgroundDimEnabled">false</item>
+    </style>
+
+    <style name="SwitchInCellStyle" parent="@android:style/Widget.CompoundButton.CheckBox">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center_vertical|end</item>
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingBottom">10dp</item>
+        <item name="android:paddingEnd">20dp</item>
+        <item name="android:button">@drawable/ic_switch_selector</item>
+    </style>
+
+    <style name="CellInPageStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">44dp</item>
+        <item name="android:drawablePadding">16dp</item>
+        <item name="android:drawableEnd">@drawable/ic_list_arrow_black</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingStart">20dp</item>
+        <item name="android:paddingEnd">20dp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">#E6000000</item>
+        <item name="android:background">@drawable/bg_cell_selector</item>
+    </style>
+
+    <style name="CellInPageStyle.NoDrawableEnd" parent="CellInPageStyle">
+        <item name="android:drawableEnd">@null</item>
+    </style>
 </resources>

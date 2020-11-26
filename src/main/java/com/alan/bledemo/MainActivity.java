@@ -5,16 +5,19 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.nutspace.nut.api.BleDeviceConsumer;
 import com.nutspace.nut.api.BleDeviceManager;
@@ -24,12 +27,19 @@ import com.nutspace.nut.api.model.BleDevice;
 
 import java.util.ArrayList;
 
+import no.nordicsemi.android.dfu.DfuProgressListener;
+import no.nordicsemi.android.dfu.DfuProgressListenerAdapter;
+import no.nordicsemi.android.dfu.DfuServiceInitiator;
+import no.nordicsemi.android.dfu.DfuServiceListenerHelper;
+
 /**
  * @author hanson
  */
 public class MainActivity extends BaseActivity implements BleDeviceConsumer, ScanResultCallback, View.OnClickListener, OnItemClickListener {
 
-    public static final int MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION = 1000;
+    private static final String TAG = MainActivity.class.getSimpleName();
+
+    public static final int REQUEST_ACCESS_COARSE_LOCATION = 1000;
 
     RecyclerView mRecyclerView;
 
@@ -66,21 +76,23 @@ public class MainActivity extends BaseActivity implements BleDeviceConsumer, Sca
 
     private void checkPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED  &&
+                    checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 mIsPermissionGranted = false;
                 // Should we show an explanation?
                 if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                         Manifest.permission.ACCESS_COARSE_LOCATION)) {
-
                     // Show an explanation to the user *asynchronously* -- don't block
                     // this thread waiting for the user's response! After the user
                     // sees the explanation, try again to request the permission.
-
                 } else {
                     // No explanation needed, we can request the permission.
-                    ActivityCompat.requestPermissions(this,
-                            new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
-                            MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION);
+                    String[] permissionArray = new String[]{Manifest.permission.ACCESS_COARSE_LOCATION};
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        permissionArray = new String[]{Manifest.permission.ACCESS_COARSE_LOCATION,
+                                Manifest.permission.ACCESS_BACKGROUND_LOCATION};
+                    }
+                    ActivityCompat.requestPermissions(this, permissionArray, REQUEST_ACCESS_COARSE_LOCATION);
                 }
             } else {
                 mIsPermissionGranted = true;
@@ -98,7 +110,7 @@ public class MainActivity extends BaseActivity implements BleDeviceConsumer, Sca
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION:
+            case REQUEST_ACCESS_COARSE_LOCATION:
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     mIsPermissionGranted = true;
@@ -106,25 +118,21 @@ public class MainActivity extends BaseActivity implements BleDeviceConsumer, Sca
                 break;
             default:
                 break;
-
         }
     }
 
     @Override
     public void onBleDeviceScanned(BleDevice device) {
-        //Process the scanned Bluetooth devices
-        //Filter the nearest device
-        if(device.rssi < -60) {
-            return;
-        }
         int index = mBleDeviceList.indexOf(device);
         if (index >= 0) {
             BleDevice oldDevice = mBleDeviceList.get(index);
             oldDevice.rssi = device.rssi;
             mAdapter.notifyItemChanged(index);
         } else {
-            mBleDeviceList.add(device);
-            mAdapter.notifyDataSetChanged();
+            if (device.rssi >= -65) {
+                mBleDeviceList.add(device);
+                mAdapter.notifyDataSetChanged();
+            }
         }
     }
 
@@ -133,6 +141,18 @@ public class MainActivity extends BaseActivity implements BleDeviceConsumer, Sca
         super.onStart();
         mManager.addScanResultCallback(this);
         mManager.bind(this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        DfuServiceListenerHelper.registerProgressListener(this, mDfuProgressListener);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        DfuServiceListenerHelper.unregisterProgressListener(this, mDfuProgressListener);
     }
 
     @Override
@@ -145,7 +165,6 @@ public class MainActivity extends BaseActivity implements BleDeviceConsumer, Sca
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-
             case R.id.btn_scan:
                 if (mBtnScan.getText().toString().equals("start scan")) {
                     mBtnScan.setText("stop scan");
@@ -167,9 +186,15 @@ public class MainActivity extends BaseActivity implements BleDeviceConsumer, Sca
     @Override
     public void onItemClick(int position) {
         BleDevice device = mBleDeviceList.get(position);
-        Intent intent = new Intent(this, ConnectActivity.class);
-        intent.putExtra("device", device);
-        startActivityForResult(intent, 1);
+        if (device != null) {
+            if (device.name.startsWith("DfuTarg")) {
+                performDFUUpload(device.address);
+            } else {
+                Intent intent = new Intent(this, ConnectActivity.class);
+                intent.putExtra("device", device);
+                startActivityForResult(intent, 1);
+            }
+        }
     }
 
     private void startScan() {
@@ -196,9 +221,9 @@ public class MainActivity extends BaseActivity implements BleDeviceConsumer, Sca
 
             ViewHolder(View view) {
                 super(view);
-                mTvName = (TextView) view.findViewById(R.id.tv_name);
-                mTvAddress = (TextView) view.findViewById(R.id.tv_address);
-                mTvRssi = (TextView) view.findViewById(R.id.tv_rssi);
+                mTvName = view.findViewById(R.id.tv_name);
+                mTvAddress = view.findViewById(R.id.tv_address);
+                mTvRssi = view.findViewById(R.id.tv_rssi);
             }
         }
 
@@ -241,4 +266,70 @@ public class MainActivity extends BaseActivity implements BleDeviceConsumer, Sca
         mManager.stopScan();
         super.onBackPressed();
     }
+
+    /**************************************************************************
+     * Device DFU Handle functions start
+     *************************************************************************/
+
+    public void performDFUUpload(String macAddress) {
+        //Nordic's DFU firmware code, for DFU mode, it will +1 MacAddress, so add +1 to the existing Mac address
+        final DfuServiceInitiator starter = new DfuServiceInitiator(macAddress)
+                .setDisableNotification(true)
+                .setForeground(false)
+                .setKeepBond(true);
+
+        starter.setZip(R.raw.dfu_fw_114);
+        starter.start(this, DfuService.class);
+        LoadingDialogFragment.show(this);
+    }
+
+    private final DfuProgressListener mDfuProgressListener = new DfuProgressListenerAdapter() {
+        @Override
+        public void onDeviceConnecting(@NonNull String deviceAddress) {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(MainActivity.this, "DFU Device Connecting!", Toast.LENGTH_SHORT).show();
+                }
+            }, 200);
+        }
+        @Override
+        public void onDfuProcessStarting(@NonNull String deviceAddress) {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(MainActivity.this, "DFU Upload starting!", Toast.LENGTH_SHORT).show();
+                }
+            }, 200);
+        }
+        @Override
+        public void onEnablingDfuMode(@NonNull String deviceAddress) { }
+        @Override
+        public void onFirmwareValidating(@NonNull String deviceAddress) { }
+        @Override
+        public void onDeviceDisconnecting(@NonNull String deviceAddress) { }
+        @Override
+        public void onDfuCompleted(@NonNull String deviceAddress) {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    LoadingDialogFragment.hide(MainActivity.this);
+                    Toast.makeText(MainActivity.this, "DFU Upload completed!", Toast.LENGTH_SHORT).show();
+                }
+            }, 200);
+        }
+        @Override
+        public void onDfuAborted(@NonNull String deviceAddress) { }
+        @Override
+        public void onProgressChanged(@NonNull String deviceAddress, final int percent, final float speed, final float avgSpeed, final int currentPart, final int partsTotal) {
+            Log.i(TAG, "upload progress changed " + percent + "%");
+        }
+        @Override
+        public void onError(@NonNull String deviceAddress, final int error, final int errorType, final String message) {
+            Log.i(TAG, "upload error error code " + error + " error type " + errorType + " message " + message);
+        }
+    };
+    /**************************************************************************
+     * Device DFU Handle functions end
+     *************************************************************************/
 }

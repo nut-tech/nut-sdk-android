@@ -5,8 +5,9 @@ import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
-import android.support.annotation.Nullable;
-import android.support.v4.app.NotificationCompat;
+
+import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
 
 import com.nutspace.nut.api.BleDeviceConsumer;
 import com.nutspace.nut.api.BleDeviceManager;
@@ -104,6 +105,11 @@ public class SdkService extends Service implements BleDeviceConsumer, ConnectSta
 
     @Override
     public void onDeviceRingStateChangedEvent(BleDevice device, int state, int error) {
+
+    }
+
+    @Override
+    public void onDeviceAlert(BleDevice bleDevice, boolean b) {
 
     }
 

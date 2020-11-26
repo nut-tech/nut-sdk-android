@@ -70,21 +70,44 @@
         android:visibility="gone"
         tools:visibility="visible">
 
-        <TextView
-            android:id="@+id/tv_rssi"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingTop="5dp"
-            android:text="RSSI:"
-            tools:text="RSSI: -100"/>
+            android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/tv_battery"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingTop="5dp"
-            android:text="Battery:"
-            tools:text="Battery: 100%"/>
+            <TextView
+                android:id="@+id/tv_hardware"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hw:"
+                tools:text="Hw: F7"/>
+
+            <TextView
+                android:id="@+id/tv_firmware"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="10dp"
+                android:text="Fw:"
+                tools:text="Fw: 10104"/>
+
+            <TextView
+                android:id="@+id/tv_rssi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="10dp"
+                android:text="RSSI:"
+                tools:text="RSSI: -100"/>
+
+            <TextView
+                android:id="@+id/tv_battery"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="10dp"
+                android:text="Battery:"
+                tools:text="Battery: 100%"/>
+
+        </LinearLayout>
 
         <TextView
             android:id="@+id/tv_beacon_uuid"
@@ -138,13 +161,19 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
-                android:text="call"/>
+                android:text="Call"/>
 
             <Button
                 android:id="@+id/btn_shutdown"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="shutdown"/>
+                android:text="Shutdown"/>
+
+            <Button
+                android:id="@+id/btn_switch_dfu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Enter DFU"/>
 
         </LinearLayout>
 
@@ -152,34 +181,36 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/btn_read_battery"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:text="Battery"/>
 
             <Button
                 android:id="@+id/btn_read_rssi"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
-                android:text="Rssi"/>
+                android:text="Read RSSI"/>
+
+            <Button
+                android:id="@+id/btn_read_battery"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="Read Battery"/>
         </LinearLayout>
 
-        <LinearLayout
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="44dp"
+            android:gravity="center_vertical"
             android:orientation="horizontal">
+
+            <TextView
+                style="@style/CellInPageStyle.NoDrawableEnd"
+                android:text="AntiLost" />
 
             <CheckBox
                 android:id="@+id/cb_anti_lost"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="anti-lost"/>
-
-        </LinearLayout>
+                style="@style/SwitchInCellStyle" />
+        </FrameLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -246,6 +277,5 @@
                 android:textSize="12dp"
                 tools:text="34"/>
         </LinearLayout>
-
     </LinearLayout>
 </RelativeLayout>
