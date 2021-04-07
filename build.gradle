@@ -40,7 +40,7 @@ dependencies {
     implementation "androidx.appcompat:appcompat:1.2.0"
     implementation "androidx.recyclerview:recyclerview:1.1.0"
     implementation 'no.nordicsemi.android:dfu:1.11.0'
-    compile files('libs/nut-sdk-v1.4.2.jar')
+    compile files('libs/nut-sdk-v1.4.3.jar')
 }
 
 repositories {

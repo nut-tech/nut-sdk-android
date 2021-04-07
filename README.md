@@ -14,11 +14,14 @@
 - Fix bugs.
 
 ## v1.3.0
-- Support to Beacon API
+- Support to Beacon API.
 
 ## v1.4.1
 - Fix bugs.
 
 ## v1.4.2
-- enableAntiLost -> setDeviceAlert
+- enableAntiLost -> setDeviceAlert.
 - Fix bugs.
+
+## v1.4.3
+- Support BluetoothLeScanner.
