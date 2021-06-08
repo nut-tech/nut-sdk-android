@@ -25,3 +25,6 @@
 
 ## v1.4.3
 - Support BluetoothLeScanner.
+
+## v1.4.4
+- Fix bugs.
