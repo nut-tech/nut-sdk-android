@@ -28,3 +28,6 @@
 
 ## v1.4.4
 - Fix bugs.
+
+## v1.4.5
+- Fix scan bugs.

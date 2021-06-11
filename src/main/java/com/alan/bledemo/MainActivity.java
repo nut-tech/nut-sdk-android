@@ -109,6 +109,7 @@ public class MainActivity extends BaseActivity implements BleDeviceConsumer, Sca
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case REQUEST_ACCESS_COARSE_LOCATION:
                 // If request is cancelled, the result arrays are empty.
@@ -167,8 +168,10 @@ public class MainActivity extends BaseActivity implements BleDeviceConsumer, Sca
         switch (view.getId()) {
             case R.id.btn_scan:
                 if (mBtnScan.getText().toString().equals("start scan")) {
-                    mBtnScan.setText("stop scan");
                     if (mIsPermissionGranted) {
+                        mBleDeviceList.clear();
+                        mAdapter.notifyDataSetChanged();
+                        mBtnScan.setText("stop scan");
                         startScan();
                     } else {
                         Toast.makeText(this, "permission not granted", Toast.LENGTH_SHORT).show();
