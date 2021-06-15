@@ -31,3 +31,6 @@
 
 ## v1.4.5
 - Fix scan bugs.
+
+## v1.5.1
+- Fix Read Battery issue.
