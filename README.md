@@ -34,3 +34,6 @@
 
 ## v1.5.1
 - Fix Read Battery issue.
+
+## v1.5.2
+- Upgrade dependent libraries.
