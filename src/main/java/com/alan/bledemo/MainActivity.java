@@ -53,6 +53,8 @@ public class MainActivity extends BaseActivity implements BleDeviceConsumer, Sca
 
     boolean mIsPermissionGranted;
 
+    int latestPercent;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -217,9 +219,7 @@ public class MainActivity extends BaseActivity implements BleDeviceConsumer, Sca
         static class ViewHolder extends RecyclerView.ViewHolder {
 
             TextView mTvName;
-
             TextView mTvAddress;
-
             TextView mTvRssi;
 
             ViewHolder(View view) {
@@ -286,24 +286,26 @@ public class MainActivity extends BaseActivity implements BleDeviceConsumer, Sca
         LoadingDialogFragment.show(this);
     }
 
+    private void toastOnMainLooper(String text, long delayMillis) {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(MainActivity.this, text, Toast.LENGTH_SHORT).show();
+            }
+        }, delayMillis);
+    }
+
     private final DfuProgressListener mDfuProgressListener = new DfuProgressListenerAdapter() {
         @Override
         public void onDeviceConnecting(@NonNull String deviceAddress) {
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(MainActivity.this, "DFU Device Connecting!", Toast.LENGTH_SHORT).show();
-                }
-            }, 200);
+            Log.i(TAG, "DFU Device Connecting!");
+            toastOnMainLooper("DFU Device Connecting!", 200);
         }
         @Override
         public void onDfuProcessStarting(@NonNull String deviceAddress) {
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(MainActivity.this, "DFU Upload starting!", Toast.LENGTH_SHORT).show();
-                }
-            }, 200);
+            runOnUiThread(() -> LoadingDialogFragment.hide(MainActivity.this));
+            Log.i(TAG, "DFU Upload starting!");
+            toastOnMainLooper("DFU Upload starting!", 200);
         }
         @Override
         public void onEnablingDfuMode(@NonNull String deviceAddress) { }
@@ -313,19 +315,19 @@ public class MainActivity extends BaseActivity implements BleDeviceConsumer, Sca
         public void onDeviceDisconnecting(@NonNull String deviceAddress) { }
         @Override
         public void onDfuCompleted(@NonNull String deviceAddress) {
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    LoadingDialogFragment.hide(MainActivity.this);
-                    Toast.makeText(MainActivity.this, "DFU Upload completed!", Toast.LENGTH_SHORT).show();
-                }
-            }, 200);
+            toastOnMainLooper("DFU Upload completed!", 200);
         }
         @Override
         public void onDfuAborted(@NonNull String deviceAddress) { }
         @Override
         public void onProgressChanged(@NonNull String deviceAddress, final int percent, final float speed, final float avgSpeed, final int currentPart, final int partsTotal) {
             Log.i(TAG, "upload progress changed " + percent + "%");
+            int curPercent = percent / 10;
+            if (curPercent > latestPercent) {
+                latestPercent = curPercent;
+                toastOnMainLooper("upload progress changed " + percent + "%", 200);
+            }
+
         }
         @Override
         public void onError(@NonNull String deviceAddress, final int error, final int errorType, final String message) {

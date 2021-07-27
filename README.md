@@ -37,3 +37,6 @@
 
 ## v1.5.2
 - Upgrade dependent libraries.
+
+## v1.5.3
+- Improve connection stability.
