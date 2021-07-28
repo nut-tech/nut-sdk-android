@@ -40,3 +40,6 @@
 
 ## v1.5.3
 - Improve connection stability.
+
+## v1.5.4
+- Add Schedule Scan API.

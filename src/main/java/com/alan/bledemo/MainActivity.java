@@ -51,6 +51,8 @@ public class MainActivity extends BaseActivity implements BleDeviceConsumer, Sca
 
     Button mBtnScan;
 
+    Button mBtnScheduleScan;
+
     boolean mIsPermissionGranted;
 
     int latestPercent;
@@ -72,6 +74,8 @@ public class MainActivity extends BaseActivity implements BleDeviceConsumer, Sca
 
         mBtnScan = (Button) findViewById(R.id.btn_scan);
         mBtnScan.setOnClickListener(this);
+        mBtnScheduleScan = (Button) findViewById(R.id.btn_scheduled_scan);
+        mBtnScheduleScan.setOnClickListener(this);
 
         checkPermission();
     }
@@ -183,6 +187,21 @@ public class MainActivity extends BaseActivity implements BleDeviceConsumer, Sca
                     mBtnScan.setText("start scan");
                 }
                 break;
+            case R.id.btn_scheduled_scan:
+                if (mBtnScheduleScan.getText().toString().equals("scheduled scan")) {
+                    mBtnScheduleScan.setText("stop schedule");
+                    mBleDeviceList.clear();
+                    mAdapter.notifyDataSetChanged();
+                    if (mIsPermissionGranted) {
+                        startScheduleScan();
+                    } else {
+                        Toast.makeText(this, "permission not granted", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    mManager.stopScheduledScan();
+                    mBtnScheduleScan.setText("scheduled scan");
+                }
+                break;
             default:
                 break;
         }
@@ -206,6 +225,24 @@ public class MainActivity extends BaseActivity implements BleDeviceConsumer, Sca
         try {
             if (mManager.checkBluetoothAvailability(this)) {
                 mManager.startScan();
+                if (mBtnScheduleScan != null) {
+                    mBtnScheduleScan.setText("scheduled scan");
+                }
+            } else {
+                Toast.makeText(this, "bluetooth not open", Toast.LENGTH_SHORT).show();
+            }
+        } catch (BleNotAvailableException e) {
+            Toast.makeText(this, "bluetooth le not available", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void startScheduleScan() {
+        try {
+            if (mManager.checkBluetoothAvailability(this)) {
+                mManager.startScheduledScan(12 * 1000, 4 * 1000);
+                if (mBtnScan != null) {
+                    mBtnScan.setText("start scan");
+                }
             } else {
                 Toast.makeText(this, "bluetooth not open", Toast.LENGTH_SHORT).show();
             }
