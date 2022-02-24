@@ -36,17 +36,22 @@ public class ConnectActivity extends BaseActivity implements BleDeviceConsumer,
     TextView mTvBeaconUUID;
     TextView mTvBeaconMajor;
     TextView mTvBeaconMinor;
+    TextView mTvBeaconAdvInterval;
     Button mBtnCall;
     Button mBtnShutdown;
     Button mBtnSwitchDFUMode;
     Button mBtnReadRSSI;
     Button mBtnReadBattery;
     CheckBox mCbAntiLost;
-    Button mBtnWriteBeaconUUID;
-    EditText mEtBeaconUUID;
+    Button mBtnWriteBeaconUUIDEnable;
+    EditText mEtBeaconUUIDEnable;
+    Button mBtnWriteBeaconUUIDDisable;
+    EditText mEtBeaconUUIDDisable;
     Button mBtnWriteBeaconMajorMinor;
     EditText mEtBeaconMajor;
     EditText mEtBeaconMinor;
+    Button mBtnWriteBeaconAdvInterval;
+    EditText mEtBeaconAdvInterval;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,20 +71,30 @@ public class ConnectActivity extends BaseActivity implements BleDeviceConsumer,
         mTvBeaconUUID = findViewById(R.id.tv_beacon_uuid);
         mTvBeaconMajor = findViewById(R.id.tv_beacon_major);
         mTvBeaconMinor = findViewById(R.id.tv_beacon_minor);
+        mTvBeaconAdvInterval = findViewById(R.id.tv_beacon_adv_interval);
         mBtnCall = findViewById(R.id.btn_call);
         mBtnShutdown = findViewById(R.id.btn_shutdown);
         mBtnSwitchDFUMode = findViewById(R.id.btn_switch_dfu);
         mBtnReadRSSI = findViewById(R.id.btn_read_rssi);
         mBtnReadBattery = findViewById(R.id.btn_read_battery);
         mCbAntiLost = findViewById(R.id.cb_anti_lost);
-        mBtnWriteBeaconUUID = findViewById(R.id.btn_write_uuid);
-        mEtBeaconUUID = findViewById(R.id.et_beacon_uuid);
-        mEtBeaconUUID.setText("10102233-4455-6677-8899-AABBCCDDEEFF");
+        mBtnWriteBeaconUUIDEnable = findViewById(R.id.btn_write_uuid_on);
+        mEtBeaconUUIDEnable = findViewById(R.id.et_beacon_uuid_on);
+        mEtBeaconUUIDEnable.setText("10102233-4455-6677-8899-AABBCCDDEEFF");
+        mBtnWriteBeaconUUIDDisable = findViewById(R.id.btn_write_uuid_off);
+        mEtBeaconUUIDDisable = findViewById(R.id.et_beacon_uuid_off);
+        mEtBeaconUUIDDisable.setText("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF");
         mBtnWriteBeaconMajorMinor = findViewById(R.id.btn_write_major_minor);
         mEtBeaconMajor = findViewById(R.id.et_beacon_major);
         mEtBeaconMajor.setText("12");
+        mEtBeaconMajor.setHint("(0~65535)");
         mEtBeaconMinor = findViewById(R.id.et_beacon_minor);
         mEtBeaconMinor.setText("34");
+        mEtBeaconMinor.setHint("(0~65535)");
+        mBtnWriteBeaconAdvInterval = findViewById(R.id.btn_write_adv_interval);
+        mEtBeaconAdvInterval = findViewById(R.id.et_beacon_adv_interval);
+        mEtBeaconAdvInterval.setText("1000");
+        mEtBeaconAdvInterval.setHint("(1000~10240ms)");
 
         mTvName.setText(mDevice.name);
         mTvMacAddress.setText(mDevice.address);
@@ -96,8 +111,10 @@ public class ConnectActivity extends BaseActivity implements BleDeviceConsumer,
                 LoadingDialogFragment.show(ConnectActivity.this);
             }
         });
-        mBtnWriteBeaconUUID.setOnClickListener(this);
+        mBtnWriteBeaconUUIDEnable.setOnClickListener(this);
+        mBtnWriteBeaconUUIDDisable.setOnClickListener(this);
         mBtnWriteBeaconMajorMinor.setOnClickListener(this);
+        mBtnWriteBeaconAdvInterval.setOnClickListener(this);
         mBtnSwitchDFUMode.setOnClickListener(this);
     }
 
@@ -117,9 +134,8 @@ public class ConnectActivity extends BaseActivity implements BleDeviceConsumer,
                     mManager.disconnect(this, mDevice);
                 }
                 break;
-
             case R.id.btn_call:
-                if (mBtnCall.getText().equals("Call")) {
+                if (mBtnCall.getText().equals("Find Device")) {
                     mManager.changeRingState(mDevice, BleDevice.STATE_RING);
                 } else {
                     mManager.changeRingState(mDevice, BleDevice.STATE_QUIT);
@@ -138,9 +154,15 @@ public class ConnectActivity extends BaseActivity implements BleDeviceConsumer,
                 mManager.readBattery(mDevice);
                 LoadingDialogFragment.show(this);
                 break;
-            case R.id.btn_write_uuid:
+            case R.id.btn_write_uuid_on:
                 mTvBeaconUUID.setText("Beacon UUID: ");
-                String beaconUUID = mEtBeaconUUID.getText().toString();
+                String beaconUUID = mEtBeaconUUIDEnable.getText().toString();
+                mManager.setBeaconUUID(mDevice, beaconUUID);
+                LoadingDialogFragment.show(this);
+                break;
+            case R.id.btn_write_uuid_off:
+                mTvBeaconUUID.setText("Beacon UUID: ");
+                beaconUUID = mEtBeaconUUIDDisable.getText().toString();
                 mManager.setBeaconUUID(mDevice, beaconUUID);
                 LoadingDialogFragment.show(this);
                 break;
@@ -150,6 +172,12 @@ public class ConnectActivity extends BaseActivity implements BleDeviceConsumer,
                 String major = mEtBeaconMajor.getText().toString();
                 String minor = mEtBeaconMinor.getText().toString();
                 mManager.setBeaconMajorMinor(mDevice, Integer.parseInt(major), Integer.parseInt(minor));
+                LoadingDialogFragment.show(this);
+                break;
+            case R.id.btn_write_adv_interval:
+                mTvBeaconAdvInterval.setText("Beacon AdvInterval: ");
+                String interval = mEtBeaconAdvInterval.getText().toString();
+                mManager.setBeaconAdvInterval(mDevice, Integer.parseInt(interval));
                 LoadingDialogFragment.show(this);
                 break;
             case R.id.btn_switch_dfu:
@@ -227,15 +255,15 @@ public class ConnectActivity extends BaseActivity implements BleDeviceConsumer,
         LoadingDialogFragment.hide(this);
         if (state == BleDevice.STATE_RING) {
             if (error == 0) {
-                mBtnCall.setText("Stop");
+                mBtnCall.setText("Quit");
             } else {
                 mTvTips.setText("call device error " + error);
             }
         } else {
             if (error == 0) {
-                mBtnCall.setText("Call");
+                mBtnCall.setText("Find Device");
             } else {
-                mTvTips.setText("stop call device error " + error);
+                mTvTips.setText("quit device error " + error);
             }
         }
     }
@@ -270,19 +298,29 @@ public class ConnectActivity extends BaseActivity implements BleDeviceConsumer,
     }
 
     @Override
+    public void onBeaconAdvInterval(BleDevice device, int interval, boolean result) {
+        LoadingDialogFragment.hide(this);
+        if (result) {
+            mTvBeaconAdvInterval.setText("Beacon Adv Interval: " + interval);
+        } else {
+            mTvBeaconAdvInterval.setText("Beacon Adv Interval: Error");
+        }
+    }
+
+    @Override
     public void onSwitchDFUMode(BleDevice device, boolean result) {
         LoadingDialogFragment.hide(this);
 //        if (result) {
-            mTvTips.setText("Device switch to DFU mode success.");
-            mTvTips.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    //Exit to Main Activity and scan for devices in DFU mode
-                    Toast.makeText(ConnectActivity.this,
-                            "Click on the DfuTarg device to enter the DFU process", Toast.LENGTH_LONG).show();
-                    finish();
-                }
-            }, 3 * 1000);
+        mTvTips.setText("Device switch to DFU mode success.");
+        mTvTips.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                //Exit to Main Activity and scan for devices in DFU mode
+                Toast.makeText(ConnectActivity.this,
+                        "Click on the DfuTarg device to enter the DFU process", Toast.LENGTH_LONG).show();
+                finish();
+            }
+        }, 3 * 1000);
 //        } else {
 //            mTvTips.setText("Device switch to DFU mode failure.");
 //        }

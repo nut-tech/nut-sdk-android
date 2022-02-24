@@ -43,3 +43,7 @@
 
 ## v1.5.4
 - Add Schedule Scan API.
+
+## v1.6.1
+- Add Beacon adv interval API
+- Add Beacon adv battery level
