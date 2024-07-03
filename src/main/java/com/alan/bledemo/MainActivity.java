@@ -1,11 +1,15 @@
 package com.alan.bledemo;
 
 import android.Manifest;
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,22 +43,17 @@ public class MainActivity extends BaseActivity implements BleDeviceConsumer, Sca
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    public static final int REQUEST_ACCESS_COARSE_LOCATION = 1000;
+    public static final int REQUEST_ACCESS_BLUETOOTH = 1000;
+    public static final int REQUEST_ACCESS_COARSE_LOCATION = 1001;
+    public static final int REQUEST_LOCATION_SETTINGS = 1002;
 
     RecyclerView mRecyclerView;
-
     BleDeviceAdapter mAdapter;
-
     BleDeviceManager mManager;
-
     ArrayList<BleDevice> mBleDeviceList = new ArrayList<>();
-
     Button mBtnScan;
-
     Button mBtnScheduleScan;
-
     boolean mIsPermissionGranted;
-
     int latestPercent;
 
     @Override
@@ -77,10 +76,27 @@ public class MainActivity extends BaseActivity implements BleDeviceConsumer, Sca
         mBtnScheduleScan = (Button) findViewById(R.id.btn_scheduled_scan);
         mBtnScheduleScan.setOnClickListener(this);
 
-        checkPermission();
+        checkBluetoothPermission();
     }
 
-    private void checkPermission() {
+    private void checkBluetoothPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (checkSelfPermission(Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED  &&
+                    checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                mIsPermissionGranted = false;
+                String[] permissionArray = new String[]{Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT };
+                ActivityCompat.requestPermissions(this, permissionArray, REQUEST_ACCESS_BLUETOOTH);
+            } else {
+                mIsPermissionGranted = true;
+                checkLocationPermission();
+            }
+        } else {
+            mIsPermissionGranted = true;
+            checkLocationPermission();
+        }
+    }
+
+    private void checkLocationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED  &&
                     checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -108,6 +124,35 @@ public class MainActivity extends BaseActivity implements BleDeviceConsumer, Sca
         }
     }
 
+    public static boolean openAppSetting(Activity activity, int requestCode) {
+        boolean result = false;
+        if (activity != null) {
+            //Fix android.content.ActivityNotFoundException
+            // Model: YHY-ViewSonic L8 (5.1.1)
+            try {
+                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                String packageName = activity.getPackageName();
+                intent.setData(Uri.fromParts("package", packageName, null));
+                activity.startActivityForResult(intent, requestCode);
+                result = true;
+            } catch (Exception e) {
+                e.printStackTrace();
+                result = false;
+            }
+        }
+        return result;
+    }
+
+    private void showLocationDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Location Permissions")
+                .setMessage("Please choose Always Allow to ensure you can scan and connect your bluetooth devices.")
+                .setNegativeButton("Cancel", null)
+                .setPositiveButton("Confirm", (dialog, which) -> openAppSetting(this, REQUEST_LOCATION_SETTINGS))
+                .setCancelable(false)
+                .show();
+    }
+
     @Override
     public void onServiceBound() {
 
@@ -117,10 +162,18 @@ public class MainActivity extends BaseActivity implements BleDeviceConsumer, Sca
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
+            case REQUEST_ACCESS_BLUETOOTH:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    mIsPermissionGranted = true;
+                }
+                checkLocationPermission();
+                break;
             case REQUEST_ACCESS_COARSE_LOCATION:
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     mIsPermissionGranted = true;
+                } else {
+                    showLocationDialog();
                 }
                 break;
             default:
@@ -171,39 +224,35 @@ public class MainActivity extends BaseActivity implements BleDeviceConsumer, Sca
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.btn_scan:
-                if (mBtnScan.getText().toString().equals("start scan")) {
-                    if (mIsPermissionGranted) {
-                        mBleDeviceList.clear();
-                        mAdapter.notifyDataSetChanged();
-                        mBtnScan.setText("stop scan");
-                        startScan();
-                    } else {
-                        Toast.makeText(this, "permission not granted", Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    mManager.stopScan();
-                    mBtnScan.setText("start scan");
-                }
-                break;
-            case R.id.btn_scheduled_scan:
-                if (mBtnScheduleScan.getText().toString().equals("scheduled scan")) {
-                    mBtnScheduleScan.setText("stop schedule");
+        int id = view.getId();
+        if (id == R.id.btn_scan) {
+            if (mBtnScan.getText().toString().equals("start scan")) {
+                if (mIsPermissionGranted) {
                     mBleDeviceList.clear();
                     mAdapter.notifyDataSetChanged();
-                    if (mIsPermissionGranted) {
-                        startScheduleScan();
-                    } else {
-                        Toast.makeText(this, "permission not granted", Toast.LENGTH_SHORT).show();
-                    }
+                    mBtnScan.setText("stop scan");
+                    startScan();
                 } else {
-                    mManager.stopScheduledScan();
-                    mBtnScheduleScan.setText("scheduled scan");
+                    Toast.makeText(this, "Permission not granted", Toast.LENGTH_SHORT).show();
                 }
-                break;
-            default:
-                break;
+            } else {
+                mManager.stopScan();
+                mBtnScan.setText("start scan");
+            }
+        } else if (id == R.id.btn_scheduled_scan) {
+            if (mBtnScheduleScan.getText().toString().equals("scheduled scan")) {
+                mBtnScheduleScan.setText("stop schedule");
+                mBleDeviceList.clear();
+                mAdapter.notifyDataSetChanged();
+                if (mIsPermissionGranted) {
+                    startScheduleScan();
+                } else {
+                    Toast.makeText(this, "Permission not granted", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                mManager.stopScheduledScan();
+                mBtnScheduleScan.setText("scheduled scan");
+            }
         }
     }
 
@@ -318,7 +367,7 @@ public class MainActivity extends BaseActivity implements BleDeviceConsumer, Sca
                 .setForeground(false)
                 .setKeepBond(true);
 
-        starter.setZip(R.raw.dfu_fw_114);
+        starter.setZip(R.raw.dfu_fw_v114);
         starter.start(this, DfuService.class);
         LoadingDialogFragment.show(this);
     }

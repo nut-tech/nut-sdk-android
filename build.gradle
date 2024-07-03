@@ -6,26 +6,42 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.2.2'
+        classpath 'com.android.tools.build:gradle:8.2.1'
     }
 }
 
 android {
-    compileSdkVersion 30
-    buildToolsVersion "30.0.2"
+    namespace 'com.alan.bledemo'
+    compileSdkVersion 34
+    buildToolsVersion "34.0.0"
 
     defaultConfig {
         applicationId "com.alan.bledemo"
         minSdkVersion 18
-        targetSdkVersion 30
-        versionCode 16
-        versionName "1.6.1"
+        targetSdkVersion 34
+        versionCode 17
+        versionName "1.6.7"
     }
+
+    signingConfigs {
+        release {
+            storeFile file("keystore/nutsdk.keystore")
+            storePassword "zzkj1205"
+            keyAlias "nutsdk.keystore"
+            keyPassword "zzkj1205"
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled true
+            signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     lintOptions {
@@ -36,10 +52,10 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "androidx.appcompat:appcompat:1.3.0"
-    implementation "androidx.recyclerview:recyclerview:1.2.1"
-    implementation 'no.nordicsemi.android:dfu:1.11.1'
-    implementation files('libs/nut-sdk-v1.6.1.jar')
+    implementation "androidx.appcompat:appcompat:1.6.1"
+    implementation "androidx.recyclerview:recyclerview:1.3.1"
+    implementation 'no.nordicsemi.android:dfu:1.12.0'
+    implementation files('libs/nut-sdk-v1.6.7.jar')
 }
 
 repositories {

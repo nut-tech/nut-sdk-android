@@ -28,8 +28,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toEndOf="@id/tv_name"
-        android:layout_marginStart="20dp"
-        android:text="Mac Address: " />
+        android:layout_marginStart="10dp"
+        android:text="MacAddress: " />
 
     <TextView
         android:id="@+id/tv_address"
@@ -37,15 +37,14 @@
         android:layout_height="wrap_content"
         android:layout_alignBottom="@id/tv_addr_label"
         android:layout_toEndOf="@id/tv_addr_label"
-        android:text="88:88:CC:BB" />
+        android:text="88:88:88:CC:BB:AA" />
 
     <Button
         android:id="@+id/btn_connect"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        style="@style/ButtonSmall"
         android:layout_below="@id/tv_name_label"
         android:layout_marginEnd="8dp"
-        android:text="connect" />
+        android:text="connect"/>
 
     <CheckBox
         android:id="@+id/cb_auto_connect"
@@ -90,7 +89,7 @@
                 android:id="@+id/tv_firmware"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingStart="10dp"
+                android:paddingStart="5dp"
                 android:text="Fw:"
                 tools:text="Fw: 10104"/>
 
@@ -98,7 +97,7 @@
                 android:id="@+id/tv_rssi"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingStart="10dp"
+                android:paddingStart="5dp"
                 android:text="RSSI:"
                 tools:text="RSSI: -100"/>
 
@@ -106,7 +105,7 @@
                 android:id="@+id/tv_battery"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingStart="10dp"
+                android:paddingStart="5dp"
                 android:text="Battery:"
                 tools:text="Battery: 100%"/>
 
@@ -156,8 +155,6 @@
                 android:text="Beacon Adv Interval:"
                 tools:text="Beacon Adv Interval: 123456"/>
         </LinearLayout>
-
-
     </LinearLayout>
 
     <LinearLayout
@@ -176,22 +173,18 @@
 
             <Button
                 android:id="@+id/btn_call"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
+                style="@style/ButtonSmall"
                 android:text="Find Device"/>
 
             <Button
-                android:id="@+id/btn_shutdown"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Shutdown"/>
+                android:id="@+id/btn_pair"
+                style="@style/ButtonSmall"
+                android:text="Set Paired"/>
 
             <Button
-                android:id="@+id/btn_switch_dfu"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Enter DFU"/>
+                android:id="@+id/btn_shutdown"
+                style="@style/ButtonSmall"
+                android:text="Shutdown"/>
 
         </LinearLayout>
 
@@ -202,17 +195,20 @@
 
             <Button
                 android:id="@+id/btn_read_rssi"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                style="@style/ButtonSmall"
                 android:layout_marginEnd="8dp"
                 android:text="Read RSSI"/>
 
             <Button
                 android:id="@+id/btn_read_battery"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                style="@style/ButtonSmall"
                 android:layout_marginEnd="8dp"
-                android:text="Read Battery"/>
+                android:text="Read Bat."/>
+
+            <Button
+                android:id="@+id/btn_switch_dfu"
+                style="@style/ButtonSmall"
+                android:text="Enter DFU"/>
         </LinearLayout>
 
         <FrameLayout
@@ -236,8 +232,7 @@
             android:orientation="horizontal">
             <Button
                 android:id="@+id/btn_write_uuid_on"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                style="@style/ButtonSmall"
                 android:text="Write"/>
 
             <TextView
@@ -261,8 +256,7 @@
             android:orientation="horizontal">
             <Button
                 android:id="@+id/btn_write_uuid_off"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                style="@style/ButtonSmall"
                 android:text="Write"/>
 
             <TextView
@@ -287,8 +281,7 @@
 
             <Button
                 android:id="@+id/btn_write_major_minor"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                style="@style/ButtonSmall"
                 android:text="Write"/>
 
             <TextView
@@ -325,8 +318,7 @@
 
             <Button
                 android:id="@+id/btn_write_adv_interval"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                style="@style/ButtonSmall"
                 android:text="Write"/>
 
             <TextView
